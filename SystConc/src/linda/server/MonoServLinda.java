@@ -70,7 +70,7 @@ public class MonoServLinda extends UnicastRemoteObject implements ServLinda {
 		return this.linda.readAll(template);
 	}
 
-	public ExecCallback waitEvent(eventMode mode, eventTiming timing, Tuple template, final ExecCallback ecb) throws RemoteException {
+	public void waitEvent(eventMode mode, eventTiming timing, Tuple template, final ExecCallback ecb) throws RemoteException {
 		System.out.println("Enregistrement d'un Event");
 		final class newCallback implements Callback {
 			public void call(Tuple t) {
@@ -82,6 +82,5 @@ public class MonoServLinda extends UnicastRemoteObject implements ServLinda {
 			}
 		}
 		this.linda.eventRegister(mode, timing, template, new newCallback());
-		return ecb;
 	}
 }

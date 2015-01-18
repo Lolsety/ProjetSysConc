@@ -132,7 +132,7 @@ public class LindaClient implements Linda {
 			public void run() {
 				try {
 					ExecCallback ecb = new ExecCallbackImpl(callback);
-					ecb = monoserv.waitEvent(mode, timing, template, ecb);		
+					monoserv.waitEvent(mode, timing, template, ecb);		
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}

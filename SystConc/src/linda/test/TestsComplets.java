@@ -16,7 +16,6 @@ public class TestsComplets {
    	private static class MyCallback7 implements Callback {
 		@Override
 		public void call(Tuple t) {
-			System.out.println("coucou");
 			try {
 				Thread.sleep(0);
 			} catch (InterruptedException e) {
@@ -82,7 +81,7 @@ public class TestsComplets {
 	
 	 public static void main(String[] a) {
          
-	       	// final Linda linda = new linda.shm.CentralizedLinda();
+	       	//final Linda linda = new linda.shm.CentralizedLinda();
 	        final Linda linda = new linda.server.LindaClient("//localhost:4000/LindaServ");
 	       	
 	     
@@ -180,7 +179,7 @@ public class TestsComplets {
 					linda.debug("");
 					
 					System.out.println("---------- test9 eventRegister - Immediate Read not Possible ----------");
-					linda.eventRegister(eventMode.TAKE, eventTiming.IMMEDIATE, new Tuple(4,6), new MyCallback9());
+					linda.eventRegister(eventMode.READ, eventTiming.IMMEDIATE, new Tuple(4,6), new MyCallback9());
 					System.out.println("Tuplespace after Immediate Read of [4,6] :");
 					linda.debug("");
 					try {
@@ -220,8 +219,6 @@ public class TestsComplets {
 					linda.debug("");
 					
 					System.out.println("---------- test11 eventRegister - Future Read ----------");
-					System.out.println("Adding [ Int, Int ] matching with the next request.");
-					linda.write(new Tuple(4,5));
 					System.out.println("Requesting future read of [Int,Int] :");
 					linda.eventRegister(eventMode.READ, eventTiming.FUTURE, new Tuple(Integer.class,Integer.class), new MyCallback11());
 					linda.debug("");

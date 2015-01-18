@@ -23,8 +23,10 @@ public class CentralizedLinda implements Linda {
 	/** Ne pas prendre un ensemble car sinon erreur */
 	private Collection<Tuple> tuples = new ArrayList<Tuple>();
 	
-	/** Collection des callback */
-	private Collection<EventCall> eventCalls = new ArrayList<>();
+	/** Collection des callback read */
+	private Collection<EventCall> eventCallsRead = new ArrayList<>();
+	/** Collection des callback take */
+	private Collection<EventCall> eventCallsTake = new ArrayList<>();
 	
 	
 
@@ -35,7 +37,8 @@ public class CentralizedLinda implements Linda {
 	public void write(Tuple t) {
 		moniteur.lock();
 		tuples.add(t);
-		verifierCallBacks(t);
+		verifierCallBacksTake(t);
+		verifierCallBacksRead(t);
 		acces.signalAll();
 		moniteur.unlock();
 	}
@@ -125,7 +128,7 @@ public class CentralizedLinda implements Linda {
 	@Override
 	public Collection<Tuple> takeAll(Tuple template) {
 		moniteur.lock();
-		Collection<Tuple> res = new LinkedList<Tuple>();
+		Collection<Tuple> res = new ArrayList<Tuple>();
 		for (Tuple t : tuples) {
 			if (t.matches(template)) {
 				res.add(t);
@@ -141,7 +144,7 @@ public class CentralizedLinda implements Linda {
 	@Override
 	public Collection<Tuple> readAll(Tuple template) {
 		moniteur.lock();
-		Collection<Tuple> res = new LinkedList<Tuple>();
+		Collection<Tuple> res = new ArrayList<Tuple>();
 		for (Tuple t : tuples) {
 			if (t.matches(template)) {
 				res.add(t);
@@ -160,43 +163,59 @@ public class CentralizedLinda implements Linda {
 				Tuple x = tryRead(template);
 				if (x == null) {
 					EventCall event = new EventCall(callback, mode);
-					eventCalls.add(event);
-				} else System.out.println("Got "+x);
+					eventCallsRead.add(event);
+				} else {
+					callback.call(x);
+				}
 			}
-			else {
+			else if (mode == eventMode.TAKE){
 				Tuple x = tryTake(template);
 				if (x == null) {
 					EventCall event = new EventCall(callback, mode);
-					eventCalls.add(event);
-				} else System.out.println("Got "+x);
+					eventCallsTake.add(event);
+				} else {
+					callback.call(x);
+				}
 			}
 		}
-		else {
+		else if(timing == eventTiming.FUTURE) {
 			if (mode == eventMode.READ){
 				EventCall event = new EventCall(callback, mode);
-				eventCalls.add(event);
+				eventCallsRead.add(event);
 			}
-			else {
+			else if (mode == eventMode.TAKE) {
 				EventCall event = new EventCall(callback, mode);
-				eventCalls.add(event);
+				eventCallsTake.add(event);
 			}
 		}
 		moniteur.unlock();
 	}
 	
-	public void verifierCallBacks (Tuple t) {
+	public void verifierCallBacksRead (Tuple t) {
+		boolean x;
+		Collection<EventCall> readEvent = new ArrayList<EventCall>();
+		for (EventCall event : eventCallsRead) {
+			x = event.verifierOccurence(t);
+			if (x == true) {
+				readEvent.add(event);
+				//break;
+			}
+		}
+		eventCallsRead.removeAll(readEvent);
+	}
+
+	public void verifierCallBacksTake (Tuple t) {
 		boolean x;
 		EventCall e = null;
-		for (EventCall event : eventCalls) {
+		for (EventCall event : eventCallsTake) {
 			x = event.verifierOccurence(t);
 			if (x == true) {
 				e = event;
 				break;
 			}
 		}
-		if (e != null) {eventCalls.remove(e);}
+		if (e != null) {eventCallsTake.remove(e);}
 	}
-
 	@Override
 	public void debug(String prefix) {
 		System.out.println("------------");
@@ -225,7 +244,7 @@ public class CentralizedLinda implements Linda {
 					res = true;
 				}
 			}
-			else {
+			else if (e == eventMode.TAKE) {
 				Tuple x = tryTake(tuple);
 				if (x != null) {
 					c.call(x); 

@@ -24,5 +24,5 @@ public interface ServLinda extends Remote {
 
 	Collection<Tuple> readAll(Tuple template) throws RemoteException;
 	
-	ExecCallback waitEvent(eventMode mode, eventTiming timing, Tuple template, ExecCallback ecb) throws RemoteException;
+	void waitEvent(eventMode mode, eventTiming timing, Tuple template, ExecCallback ecb) throws RemoteException;
 }

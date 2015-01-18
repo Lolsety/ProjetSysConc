@@ -104,10 +104,9 @@ public class MultiServLinda extends UnicastRemoteObject implements ServLinda {
 	}
 
 	@Override
-	public ExecCallback waitEvent(eventMode mode, eventTiming timing,
+	public void waitEvent(eventMode mode, eventTiming timing,
 			Tuple template, ExecCallback ecb) throws RemoteException {
 		// TODO
-		return null;
 	}
 
 }
