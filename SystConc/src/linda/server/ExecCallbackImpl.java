@@ -17,9 +17,10 @@ public class ExecCallbackImpl extends UnicastRemoteObject implements ExecCallbac
 		this.cb=cb;
 	}
 
-	 public Callback getCb() throws RemoteException {
+	public Callback getCb() throws RemoteException {
 		 return cb;
-	 }
+	}
+	
 	@Override
 	public void call(Tuple t) throws RemoteException{
 		cb.call(t);

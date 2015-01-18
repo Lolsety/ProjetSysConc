@@ -84,5 +84,4 @@ public class MonoServLinda extends UnicastRemoteObject implements ServLinda {
 		this.linda.eventRegister(mode, timing, template, new newCallback());
 		return ecb;
 	}
-
 }

@@ -31,6 +31,7 @@ public class LindaClient implements Linda {
 
 	@Override
 	public void debug(String prefix) {
+		
 	}
 
 
@@ -127,13 +128,16 @@ public class LindaClient implements Linda {
 	@Override
 	public void eventRegister(final eventMode mode, final eventTiming timing,
 			final Tuple template, final Callback callback) {
-		try {
-			ExecCallback ecb = new ExecCallbackImpl(callback);
-			ecb = monoserv.waitEvent(mode, timing, template, ecb);		
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-
+		new Thread() {
+			public void run() {
+				try {
+					ExecCallback ecb = new ExecCallbackImpl(callback);
+					ecb = monoserv.waitEvent(mode, timing, template, ecb);		
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 
 }

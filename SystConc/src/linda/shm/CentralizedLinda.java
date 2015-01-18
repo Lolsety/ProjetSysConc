@@ -14,10 +14,10 @@ import linda.Tuple;
 /** Shared memory implementation of Linda. */
 public class CentralizedLinda implements Linda {
 
-	// Protection des variables partagées
+	// Protection des variables partag��es
 	private Lock moniteur = new ReentrantLock();
 
-	// Une condition de blocage commune à tous
+	// Une condition de blocage commune �� tous
 	private Condition acces = moniteur.newCondition();
 
 	/** Ne pas prendre un ensemble car sinon erreur */
@@ -35,7 +35,7 @@ public class CentralizedLinda implements Linda {
 	public void write(Tuple t) {
 		moniteur.lock();
 		tuples.add(t);
-		verifierCallBacks();
+		verifierCallBacks(t);
 		acces.signalAll();
 		moniteur.unlock();
 	}
@@ -155,40 +155,40 @@ public class CentralizedLinda implements Linda {
 	public void eventRegister(eventMode mode, eventTiming timing,
 			Tuple template, Callback callback) {
 		moniteur.lock();
-		if (timing == eventTiming.IMMEDIATE){
-			if (mode == eventMode.READ){
+		if (timing == eventTiming.IMMEDIATE) {
+			if (mode == eventMode.READ) {
 				Tuple x = tryRead(template);
 				if (x == null) {
-					EventCall event = new EventCall(template, callback, mode);
+					EventCall event = new EventCall(callback, mode);
 					eventCalls.add(event);
-				}
+				} else System.out.println("Got "+x);
 			}
 			else {
-				Tuple x = tryRead(template);
+				Tuple x = tryTake(template);
 				if (x == null) {
-					EventCall event = new EventCall(template, callback, mode);
+					EventCall event = new EventCall(callback, mode);
 					eventCalls.add(event);
-				}
+				} else System.out.println("Got "+x);
 			}
 		}
 		else {
 			if (mode == eventMode.READ){
-				EventCall event = new EventCall(template, callback, mode);
+				EventCall event = new EventCall(callback, mode);
 				eventCalls.add(event);
 			}
 			else {
-				EventCall event = new EventCall(template, callback, mode);
+				EventCall event = new EventCall(callback, mode);
 				eventCalls.add(event);
 			}
 		}
 		moniteur.unlock();
 	}
 	
-	public void verifierCallBacks () {
+	public void verifierCallBacks (Tuple t) {
 		boolean x;
 		EventCall e = null;
 		for (EventCall event : eventCalls) {
-			x = event.verifierOccurence();
+			x = event.verifierOccurence(t);
 			if (x == true) {
 				e = event;
 				break;
@@ -208,27 +208,25 @@ public class CentralizedLinda implements Linda {
 	
 	private class EventCall {
 		
-		private Tuple t;
 		private Callback c;
 		private eventMode e;
 		
-		public EventCall(Tuple t, Callback c, eventMode e) {
-			this.t = t;
+		public EventCall(Callback c, eventMode e) {
 			this.c = c;
 			this.e = e;
 		}
 		
-		public boolean verifierOccurence (){
+		public boolean verifierOccurence (Tuple tuple){
 			boolean res = false;
 			if (e == eventMode.READ){
-				Tuple x = tryRead(t);
+				Tuple x = tryRead(tuple);
 				if (x != null) {
 					c.call(x);
 					res = true;
 				}
 			}
 			else {
-				Tuple x = tryTake(t);
+				Tuple x = tryTake(tuple);
 				if (x != null) {
 					c.call(x); 
 					res = true;

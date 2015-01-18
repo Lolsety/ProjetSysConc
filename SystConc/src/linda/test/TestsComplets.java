@@ -53,7 +53,7 @@ public class TestsComplets {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 			}
-			System.out.println("Got in test 108 :" + t);
+			System.out.println("Got in test 10 :" + t);
 		}
 	}
    	
@@ -82,8 +82,8 @@ public class TestsComplets {
 	
 	 public static void main(String[] a) {
          
-	       	final Linda linda = new linda.shm.CentralizedLinda();
-	        //final Linda linda = new linda.server.LindaClient("//localhost:4000/LindaServ");
+	       	// final Linda linda = new linda.shm.CentralizedLinda();
+	        final Linda linda = new linda.server.LindaClient("//localhost:4000/LindaServ");
 	       	
 	     
 	        new Thread() {
@@ -135,7 +135,7 @@ public class TestsComplets {
 	                System.out.println("\n \n Test 5: TakeAll : \n");
 	                Tuple test52 = new Tuple(3, 4,"bonjour");
 	                Tuple test51 = new Tuple(2, 8,"aurevoir");
-	                Tuple test53 = new Tuple("aaa", 3,"raté");
+	                Tuple test53 = new Tuple("aaa", 3,"ratï¿½");
 	                
 	                linda.write(test51);
 	                linda.write(test52);
@@ -153,7 +153,7 @@ public class TestsComplets {
 	                System.out.println("Tuplespace after TakeAll:");
 	                linda.debug("");
 	                
-	                System.out.println("\n \n Test 6: TakeAll : \n");
+	                System.out.println("\n \n Test 6: ReadAll : \n");
 	                Tuple test6 = new Tuple("bbb", 3,"poisson");         
 	                linda.write(test6);
 	                System.out.println("writting tuple " + test6);
@@ -220,8 +220,10 @@ public class TestsComplets {
 					linda.debug("");
 					
 					System.out.println("---------- test11 eventRegister - Future Read ----------");
-					linda.eventRegister(eventMode.READ, eventTiming.FUTURE, new Tuple(4,5), new MyCallback11());
-					System.out.println("Requesting future read of [4,5] :");
+					System.out.println("Adding [ Int, Int ] matching with the next request.");
+					linda.write(new Tuple(4,5));
+					System.out.println("Requesting future read of [Int,Int] :");
+					linda.eventRegister(eventMode.READ, eventTiming.FUTURE, new Tuple(Integer.class,Integer.class), new MyCallback11());
 					linda.debug("");
 					try {
 						sleep(2000);
@@ -229,8 +231,8 @@ public class TestsComplets {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					System.out.println("adding [4,5]");
-					linda.write(new Tuple(4,5));
+					System.out.println("adding [6,7]");
+					linda.write(new Tuple(6,7));
 					try {
 						sleep(200);
 					} catch (InterruptedException e) {
@@ -239,7 +241,7 @@ public class TestsComplets {
 					}
 					linda.debug("");
 					
-					System.out.println("---------- test11 eventRegister - Future Read ----------");
+					System.out.println("---------- test12 eventRegister - Future Take ----------");
 					linda.eventRegister(eventMode.TAKE, eventTiming.FUTURE, new Tuple(String.class,Integer.class), new MyCallback12());
 					System.out.println("Requesting future take of [String,Int] :");
 					linda.debug("");
@@ -249,7 +251,7 @@ public class TestsComplets {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					System.out.println("adding matching tuple");
+					System.out.println("adding [ \"bonjour\", 7 ]");
 					linda.write(new Tuple("bonjour",7));
 					try {
 						sleep(200);
